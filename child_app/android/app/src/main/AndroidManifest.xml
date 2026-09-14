@@ -1,0 +1,100 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.parental.screenmirror">
+
+    <!-- STRICTLY SCOPED PERMISSIONS: ONLY WHAT IS LEGITIMATELY REQUIRED FOR WEBRTC & SCREEN CAPTURE -->
+    <!-- Network communication for WebRTC signaling and video stream transmission -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!-- Foreground Service permissions required by Android 9 (API 28) and up -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
+    <!-- Mandatory specific foreground service type permission for Android 14 (API 34) and Android 15 (API 35) -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
+
+    <!-- Runtime notification permission required for Android 13 (API 33) and above to show persistent capture notice -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!-- Battery optimization whitelist request to prevent aggressive OEM kills during active parental view -->
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+
+    <!-- Restores device presence and pairing config upon reboot (never bypasses MediaProjection consent) -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <!-- Vibrate for session initiation alert -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+
+    <!-- NO CAMERA, NO RECORD_AUDIO, NO CONTACTS, NO SMS, NO LOCATION, NO ACCESSIBILITY, NO DEVICE_ADMIN -->
+
+    <application
+        android:label="ScreenMirror"
+        android:name="${applicationName}"
+        android:icon="@mipmap/ic_launcher">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:theme="@style/LaunchTheme"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+            android:hardwareAccelerated="true"
+            android:windowSoftInputMode="adjustResize">
+            
+            <meta-data
+              android:name="io.flutter.embedding.android.NormalTheme"
+              android:resource="@style/NormalTheme" />
+            
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+
+        <!-- Transparent activity to present system MediaProjection prompt when requested by parent while Flutter is closed -->
+        <activity
+            android:name=".MediaProjectionConsentActivity"
+            android:exported="false"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
+        <!-- Android MediaProjection Foreground Service with mandatory type declaration and stopWithTask="false" -->
+        <service
+            android:name=".ScreenCaptureService"
+            android:enabled="true"
+            android:exported="false"
+            android:stopWithTask="false"
+            android:foregroundServiceType="mediaProjection" />
+
+        <!-- Boot Receiver for restoring presence and pairing after device reboot -->
+        <receiver
+            android:name=".BootReceiver"
+            android:exported="true"
+            android:enabled="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Native Signaling Receiver for incoming session requests while Flutter UI is closed -->
+        <receiver
+            android:name=".NativeSignalingReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.parental.screenmirror.ACTION_REMOTE_REQUEST" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Native FCM Push Service for waking the killed process on parental request -->
+        <service
+            android:name=".FcmSignalingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <meta-data
+            android:name="flutterEmbedding"
+            android:value="2" />
+    </application>
+</manifest>

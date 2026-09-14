@@ -1,0 +1,26 @@
+name: screen_mirror_parent
+description: Parent application for remote screen mirroring parental control.
+version: 1.0.0+1
+publish_to: 'none'
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+  flutter: ">=3.19.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_webrtc: ^0.12.5
+  supabase_flutter: ^2.8.3
+  mobile_scanner: ^6.0.0
+  flutter_secure_storage: ^9.2.2
+  screen_mirror_shared:
+    path: ../shared
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true

@@ -1,0 +1,6 @@
+{
+  "name": "ScreenMirror Parental Control",
+  "description": "Android-only Flutter remote screen mirroring parental-control suite with Parent App, Child App, native MediaProjection Foreground Service, and WebRTC streaming.",
+  "requestFramePermissions": ["display-capture"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
